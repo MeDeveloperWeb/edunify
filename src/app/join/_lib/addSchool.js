@@ -67,15 +67,21 @@ function validateEmail(email) {
 async function uploadImage(image) {
   if (!image) throw new Error('No image uploaded');
 
-  const bytes = await image.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  try {
+    const bytes = await image.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-  const imgName = uuidv4() + image.name;
+    const imgName = uuidv4() + image.name;
 
-  const path = join(process.cwd(), 'tmp/public/schoolImages', imgName);
-  await writeFile(path, buffer);
+    const path = join(process.cwd(), 'public/schoolImages', imgName);
+    await writeFile(path, buffer);
 
-  return imgName;
+    return imgName;
+  } catch (err) {
+    throw Error(
+      'Vercel is serverless and hence does not provide facility to store images in filesystem dynamically. Please clone the project to localhost and run to see full functionality.'
+    );
+  }
 }
 
 async function executeQuery(data) {
