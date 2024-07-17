@@ -72,7 +72,7 @@ async function uploadImage(image) {
 
   const imgName = uuidv4() + image.name;
 
-  const path = join(process.cwd(), 'public/schoolImages', imgName);
+  const path = join(process.cwd(), 'tmp/public/schoolImages', imgName);
   await writeFile(path, buffer);
 
   return imgName;
