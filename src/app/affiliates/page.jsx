@@ -1,10 +1,31 @@
+'use client';
+
 import Image from 'next/image';
 import getSchools from './_lib/getSchools';
-import { unstable_noStore as noStore } from 'next/cache';
+import { useEffect, useState } from 'react';
+import loading from '@/assets/loading.gif';
 
-export default async function ViewSchools() {
-  noStore();
-  const schools = await getSchools();
+export default function ViewSchools() {
+  // Not using server side because server doesn't always remain wake up
+  // Because I am using free hosting
+  const [schools, setSchools] = useState([]);
+
+  useEffect(() => {
+    const fetchSchools = async () => {
+      const data = await getSchools();
+      setSchools(data);
+    };
+
+    fetchSchools();
+  }, []);
+
+  if (schools.length === 0)
+    return (
+      <div className="w-full flex-1 flex justify-center items-center flex-col gap-8">
+        <Image src={loading.src} width={100} height={100} alt="loading" />
+        <p>The server is hosted on free instance. Please be patient.</p>
+      </div>
+    );
 
   return (
     <main>
@@ -23,7 +44,7 @@ export default async function ViewSchools() {
             <div className="flex flex-col justify-center max-w-full h-full gap-2 shadow-lg bg-[#a2d8ff23] rounded-lg overflow-hidden hover:shadow-none cursor-pointer">
               <div className="flex-1 flex items-center justify-center overflow-hidden">
                 <Image
-                  src={`/api/static/schoolImages/${school.image}`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/image/${school.image}`}
                   width={400}
                   height={400}
                   alt={school.name}

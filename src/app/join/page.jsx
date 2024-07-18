@@ -2,8 +2,10 @@
 
 import { useForm } from 'react-hook-form';
 import addSchool from './_lib/addSchool';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import loadingImg from '@/assets/loading.gif';
+import Image from 'next/image';
 
 export default function AddSchool() {
   const {
@@ -18,13 +20,19 @@ export default function AddSchool() {
 
   const textFields = ['name', 'address', 'city', 'state'];
 
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (data) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, val]) => formData.append(key, val));
 
     formData.append('image', fileInput.current.files[0]);
 
+    setLoading(true);
+
     const res = await addSchool(formData);
+
+    setLoading(false);
 
     if (res.type === 'error') {
       alert(res.message);
@@ -33,6 +41,23 @@ export default function AddSchool() {
       router.push('./');
     }
   };
+
+  useEffect(() => {
+    const wakeServer = async () => {
+      // wake up server
+      await fetch(process.env.NEXT_PUBLIC_API_URL, { cache: 'no-store' });
+    };
+    wakeServer();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full flex-1 flex justify-center items-center flex-col gap-8">
+        <Image src={loadingImg.src} width={100} height={100} alt="loading" />
+        <p>The server is hosted on free instance. Please be patient.</p>
+      </div>
+    );
+  }
 
   return (
     <main className="flex-1 flex justify-center py-4 lg:py-12 px-6">
